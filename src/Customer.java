@@ -4,16 +4,10 @@ public class Customer {
 
     // ************************************************************ Fields
     // ************************************************************
-    private final String userID;
-    private String email;
-    private String name;
-    private String phone;
-    private final String password;
-    private String address;
-    private int age;
-    public List<Flight> flightsRegisteredByUser;
-    public List<Integer> numOfTicketsBookedByUser;
-    public static final List<Customer> customerCollection = User.getCustomersCollection();
+    private static final String DEFAULT_USERNAME = "root";
+    private static final String DEFAULT_PASSWORD = "root";
+    private static final int MAX_ADMINS = 10;
+
 
     // ************************************************************
     // Behaviours/Methods
