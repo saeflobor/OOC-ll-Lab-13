@@ -2,7 +2,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-// Extract Class: Moved flight-related information out of Customer
 public class CustomerFlightInfo {
     private final List<Flight> flightsRegisteredByUser = new ArrayList<>();
     private final List<Integer> numOfTicketsBookedByUser = new ArrayList<>();
@@ -12,7 +11,7 @@ public class CustomerFlightInfo {
         numOfTicketsBookedByUser.add(numOfTickets);
     }
 
-    // Encapsulate Collection: Return unmodifiable lists to prevent external modifications
+    // Encapsulate Collection: Prevent direct modification of lists
     public List<Flight> getFlightsRegisteredByUser() {
         return Collections.unmodifiableList(flightsRegisteredByUser);
     }
