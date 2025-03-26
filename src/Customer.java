@@ -178,3 +178,8 @@ public class Customer {
     private static void displayUserManual(Scanner scanner) {
         System.out.println("Displaying user manual...");
     }
+
+    public static List<Customer> getCustomersCollection() {
+        return new ArrayList<>(customersCollection);
+    }
+}
