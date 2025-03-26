@@ -15,7 +15,7 @@ public class Customer {
     private final CustomerFlightInfo customerFlightInfo; // Extract Class: Flight info moved here
 
     // Encapsulate Collection: Static list for customers (accessed via safe getters)
-    private static final List<Customer> customerCollection = new ArrayList<>();
+    static final List<Customer> customerCollection = new ArrayList<>();
 
     // Default constructor
     public Customer() {
@@ -87,6 +87,9 @@ public class Customer {
     // Self-Encapsulate Field: Getter for flight information
     public CustomerFlightInfo getCustomerFlightInfo() {
         return customerFlightInfo;
+    }
+
+    public String getPassword() {
     }
 
     // (Additional getters/setters could be added as needed without altering logic)

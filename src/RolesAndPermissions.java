@@ -9,6 +9,7 @@ public class RolesAndPermissions extends User {
      */
     public int isPrivilegedUserOrNot(String username, String password) {
         int isFound = -1;
+        Object[][] adminUserNameAndPassword;
         for (int i = 0; i < adminUserNameAndPassword.length; i++) {
             if (username.equals(adminUserNameAndPassword[i][0])) {
                 if (password.equals(adminUserNameAndPassword[i][1])) {
