@@ -13,15 +13,27 @@ public class Customer {
     // Behaviours/Methods
     // ************************************************************
 
-    Customer() {
-        this.userID = null;
-        this.name = null;
-        this.email = null;
-        this.password = null;
-        this.phone = null;
-        this.address = null;
-        this.age = 0;
+    private static String[][] adminCredentials = new String[MAX_ADMINS][2];
+    private static List<Customer> customersCollection = new ArrayList<>();
+
+    public static void main(String[] args) {
+        initializeDefaultAdmin();
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("\n\t\t\t\t+++++++++++++ Welcome to BAV Airlines +++++++++++++\n");
+        System.out.println("\n***** Default Username & Password is root-root *****\n");
+
+        int option;
+        do {
+            displayMainMenu();
+            option = getValidOption(scanner, 0, 5);
+            handleMainMenuOption(option, scanner);
+        } while (option != 0);
+
+        System.out.println("Thank you for using BAV Airlines Ticketing System!");
+        scanner.close();
     }
+
 
     /**
      * Registers new customer to the program. Obj of RandomGenerator(Composition) is
