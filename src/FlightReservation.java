@@ -1,9 +1,11 @@
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
 public class FlightReservation implements DisplayClass {
+    private static final String ERROR_FLIGHT_NOT_FOUND = "ERROR! Flight not found.";
+    private static final String ERROR_INVALID_INPUT = "Invalid Flight Number or User ID!";
+    private static final String SUCCESSFUL_BOOKING = "You've booked %d tickets for Flight \"%5s\"...";
 
     private final Flight flight = new Flight();
     private int flightIndexInFlightList;
@@ -13,23 +15,20 @@ public class FlightReservation implements DisplayClass {
         Optional<Customer> customer = findCustomerById(userID);
 
         if (selectedFlight.isEmpty() || customer.isEmpty()) {
-            System.out.println("Invalid Flight Number or User ID!");
+            System.out.println(ERROR_INVALID_INPUT);
             return;
         }
 
-        Flight f1 = selectedFlight.get();
-        Customer c1 = customer.get();
-        f1.setNoOfSeatsInTheFlight(f1.getNoOfSeats() - numOfTickets);
-
-        if (!f1.isCustomerAlreadyAdded(f1.getListOfRegisteredCustomersInAFlight(), c1)) {
-            f1.addNewCustomerToFlight(c1);
-        }
-
-        processCustomerFlightBooking(c1, f1, numOfTickets);
-        System.out.printf("\n %50s You've booked %d tickets for Flight \"%5s\"...", "", numOfTickets, flightNo.toUpperCase());
+        processFlightBooking(selectedFlight.get(), customer.get(), numOfTickets);
+        System.out.printf("\n %50s " + SUCCESSFUL_BOOKING, "", numOfTickets, flightNo.toUpperCase());
     }
 
-    private void processCustomerFlightBooking(Customer customer, Flight flight, int numOfTickets) {
+    private void processFlightBooking(Flight flight, Customer customer, int numOfTickets) {
+        flight.setNoOfSeats(flight.getNoOfSeats() - numOfTickets);
+        if (!flight.isCustomerAlreadyAdded(flight.getListOfRegisteredCustomersInAFlight(), customer)) {
+            flight.addNewCustomerToFlight(customer);
+        }
+
         if (isFlightAlreadyAddedToCustomerList(customer.getCustomerFlightInfo().getFlightsRegisteredByUser(), flight)) {
             addNumberOfTicketsToAlreadyBookedFlight(customer, numOfTickets);
         } else {
@@ -51,58 +50,21 @@ public class FlightReservation implements DisplayClass {
         }
 
         displayFlightsRegisteredByOneUser(userID);
+        processFlightCancellation(c1);
+    }
+
+    private void processFlightCancellation(Customer customer) {
         Scanner read = new Scanner(System.in);
         System.out.print("Enter the Flight Number of the Flight you want to cancel: ");
         String flightNum = read.nextLine();
 
         Optional<Flight> selectedFlight = findFlightByNumber(flightNum);
         if (selectedFlight.isEmpty()) {
-            System.out.println("ERROR! Flight not found.");
+            System.out.println(ERROR_FLIGHT_NOT_FOUND);
             return;
         }
 
-        cancelCustomerFlight(c1, selectedFlight.get(), read);
-    }
-
-    private void cancelCustomerFlight(Customer customer, Flight flight, Scanner read) {
-        int index = customer.getCustomerFlightInfo().getFlightsRegisteredByUser().indexOf(flight);
-        if (index == -1) {
-            System.out.println("ERROR! Flight not registered under this customer.");
-            return;
-        }
-
-        int numOfTicketsForFlight = customer.getCustomerFlightInfo().getNumOfTicketsBookedByUser().get(index);
-        int numOfTickets = getValidTicketInput(read, numOfTicketsForFlight);
-        updateCustomerFlightTickets(customer, flight, index, numOfTicketsForFlight, numOfTickets);
-    }
-
-    private int getValidTicketInput(Scanner read, int numOfTicketsForFlight) {
-        int numOfTickets;
-        do {
-            System.out.print("Enter the number of tickets to cancel: ");
-            numOfTickets = read.nextInt();
-            if (numOfTickets > numOfTicketsForFlight) {
-                System.out.println("ERROR! Cannot exceed booked tickets.");
-            }
-        } while (numOfTickets > numOfTicketsForFlight);
-        return numOfTickets;
-    }
-
-    private void updateCustomerFlightTickets(Customer customer, Flight flight, int index, int numOfTicketsForFlight, int numOfTickets) {
-        int ticketsToBeReturned = flight.getNoOfSeats() + numOfTickets;
-        customer.getCustomerFlightInfo().getNumOfTicketsBookedByUser().set(index, numOfTicketsForFlight - numOfTickets);
-
-        if (numOfTicketsForFlight == numOfTickets) {
-            customer.getCustomerFlightInfo().getFlightsRegisteredByUser().remove(index);
-            customer.getCustomerFlightInfo().getNumOfTicketsBookedByUser().remove(index);
-        }
-
-        flight.setNoOfSeatsInTheFlight(ticketsToBeReturned);
-    }
-
-    private void addNumberOfTicketsToAlreadyBookedFlight(Customer customer, int numOfTickets) {
-        int newNumOfTickets = customer.getCustomerFlightInfo().getNumOfTicketsBookedByUser().get(flightIndexInFlightList) + numOfTickets;
-        customer.getCustomerFlightInfo().getNumOfTicketsBookedByUser().set(flightIndexInFlightList, newNumOfTickets);
+        cancelCustomerFlight(customer, selectedFlight.get(), read);
     }
 
     private Optional<Flight> findFlightByNumber(String flightNo) {
@@ -117,11 +79,16 @@ public class FlightReservation implements DisplayClass {
                 .findFirst();
     }
 
+    @Override
     public void displayFlightsRegisteredByOneUser(String userID) {
-        System.out.println("\nRegistered Flights for User ID: " + userID);
+        StringBuilder output = new StringBuilder();
+        output.append("\nRegistered Flights for User ID: ").append(userID).append("\n");
+
         User.getCustomersCollection().stream()
                 .filter(customer -> customer.getUserID().equals(userID))
                 .forEach(customer -> customer.getCustomerFlightInfo().getFlightsRegisteredByUser()
-                        .forEach(flight -> System.out.println(flight.toString())));
+                        .forEach(flight -> output.append(flight.toString()).append("\n")));
+
+        System.out.println(output);
     }
 }
