@@ -63,3 +63,65 @@ public class FlightReservation implements DisplayClass {
 
         cancelCustomerFlight(c1, selectedFlight.get(), read);
     }
+
+    private void cancelCustomerFlight(Customer customer, Flight flight, Scanner read) {
+        int index = customer.getCustomerFlightInfo().getFlightsRegisteredByUser().indexOf(flight);
+        if (index == -1) {
+            System.out.println("ERROR! Flight not registered under this customer.");
+            return;
+        }
+
+        int numOfTicketsForFlight = customer.getCustomerFlightInfo().getNumOfTicketsBookedByUser().get(index);
+        int numOfTickets = getValidTicketInput(read, numOfTicketsForFlight);
+        updateCustomerFlightTickets(customer, flight, index, numOfTicketsForFlight, numOfTickets);
+    }
+
+    private int getValidTicketInput(Scanner read, int numOfTicketsForFlight) {
+        int numOfTickets;
+        do {
+            System.out.print("Enter the number of tickets to cancel: ");
+            numOfTickets = read.nextInt();
+            if (numOfTickets > numOfTicketsForFlight) {
+                System.out.println("ERROR! Cannot exceed booked tickets.");
+            }
+        } while (numOfTickets > numOfTicketsForFlight);
+        return numOfTickets;
+    }
+
+    private void updateCustomerFlightTickets(Customer customer, Flight flight, int index, int numOfTicketsForFlight, int numOfTickets) {
+        int ticketsToBeReturned = flight.getNoOfSeats() + numOfTickets;
+        customer.getCustomerFlightInfo().getNumOfTicketsBookedByUser().set(index, numOfTicketsForFlight - numOfTickets);
+
+        if (numOfTicketsForFlight == numOfTickets) {
+            customer.getCustomerFlightInfo().getFlightsRegisteredByUser().remove(index);
+            customer.getCustomerFlightInfo().getNumOfTicketsBookedByUser().remove(index);
+        }
+
+        flight.setNoOfSeatsInTheFlight(ticketsToBeReturned);
+    }
+
+    private void addNumberOfTicketsToAlreadyBookedFlight(Customer customer, int numOfTickets) {
+        int newNumOfTickets = customer.getCustomerFlightInfo().getNumOfTicketsBookedByUser().get(flightIndexInFlightList) + numOfTickets;
+        customer.getCustomerFlightInfo().getNumOfTicketsBookedByUser().set(flightIndexInFlightList, newNumOfTickets);
+    }
+
+    private Optional<Flight> findFlightByNumber(String flightNo) {
+        return flight.getFlightList().stream()
+                .filter(f -> f.getFlightNumber().equalsIgnoreCase(flightNo))
+                .findFirst();
+    }
+
+    private Optional<Customer> findCustomerById(String userID) {
+        return User.getCustomersCollection().stream()
+                .filter(c -> c.getUserID().equals(userID))
+                .findFirst();
+    }
+
+    public void displayFlightsRegisteredByOneUser(String userID) {
+        System.out.println("\nRegistered Flights for User ID: " + userID);
+        User.getCustomersCollection().stream()
+                .filter(customer -> customer.getUserID().equals(userID))
+                .forEach(customer -> customer.getCustomerFlightInfo().getFlightsRegisteredByUser()
+                        .forEach(flight -> System.out.println(flight.toString())));
+    }
+}
